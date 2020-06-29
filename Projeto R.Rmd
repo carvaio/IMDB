@@ -1,0 +1,95 @@
+---
+title: "Projeto R"
+author: "Carolina Carvalho"
+output: html_document
+---
+
+``````{r , include=TRUE, message=FALSE, warning = FALSE}
+#Pacotes que utilizarei no projeto
+library(ggplot2movies)
+library(ggplot2)
+library(dplyr)
+
+#Base de dados escolhida
+base <- data(movies)
+```
+Quero encontrar o top 10 de filmes mais avaliados na plataforma IMDB.
+``````{r , include=TRUE, message=FALSE, warning = FALSE}
+#selecionando os dados que irei utilizar
+tabela <- select(movies,title,rating,votes)
+
+#encontrando o top10 filmes mais votados
+top10 <- top_n(tabela,10,votes) %>% arrange(desc(votes))
+
+#mostrando a lista top10 em ordem decrescente 
+print(top10)
+```
+A seguir criarei um gráfico que demonstra a performance dos filmes mais avaliados na plataforma.
+``````{r dpi=200 }
+#definindo margens do gráfico
+par(mar=c(16, 6, 2.5, 5))
+
+#criando gráfico de barras com filmes no eixo x e quantidade de avaliações no eixo y.
+mp <- barplot(height=top10$votes, cex.axis = 0.7,
+              col=("pink"),ylim=c(0,160000),names.arg = top10$title, cex.names = 0.8,
+              axis.lty=1,las=2,cex.main=0.7)
+
+#adicionando a linha referente a avaliação média dos filmes
+par(new=TRUE)
+plot(mp[,1],top10$rating,type="l",ann=FALSE,axes = FALSE)
+Axis(side=3,at=mp[],labels=top10$rating,cex.axis = 0.7)
+
+#identificando os eixos
+mtext("Avaliação Média",cex=0.7,line = 1.7)
+mtext("Quantidade de Avaliações",cex=0.7,side=2,line=3.3)
+```
+
+Podemos concluir, que a performance média dos filmes mais avaliados foi muito boa, visto que as notas variam de 8.5 à 9.1. 
+
+Agora, será que há um gênero que predomina o top10 de avaliações? Vamos checar.
+
+``````{r , include=TRUE, message=FALSE, warning = FALSE}
+
+#selecionando os dados que irei utilizar
+tabela_2 <- select(movies,title,votes,Action,Animation,Comedy,Drama,Documentary,Romance,Short)
+
+#encontrando o top 10 filmes mais votados (a diferença é de top10_2 para a top10 é que essa possui colunas com os gêneros)
+top10_2 <- top_n(tabela_2,10,votes) %>% arrange(desc(votes))
+
+#encontrando a quantidade de filmes do top10 que pertencem a cada gênero
+ação <- sum(top10_2$Action)
+animação <- sum(top10_2$Animation)
+comédia <- sum(top10_2$Comedy)
+drama <- sum(top10_2$Drama)
+documentário <-sum(top10_2$Documentary)
+romance <-sum(top10_2$Romance)
+curta <- sum(top10_2$Short)
+
+gênero <- c(ação,animação,comédia,drama,documentário,romance,curta)
+
+print(gênero)
+```
+Logo, o top10 filmes mais avaliados consiste estritamente em filmes de ação e de drama.
+
+Criando um gráfico para visualizar os dados encontrados:
+``````{r dpi=200,include=TRUE, message=FALSE, warning = FALSE}
+slices <- c(4,0,0,5,0,0,0)
+lbls <- c("Ação","","","Drama","","","")
+pie(slices, main="Gênero dos Filmes Mais Avaliados", col=c("pink","lavender"),cex=0.8,
+   textposition='inside',labels = lbls )
+```
+Referências
+
+https://stackoverflow.com/questions/11328087/pie-chart-display-non-null-values
+https://www.statmethods.net/graphs/pie.html
+http://www.zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/#more-functionality-from-include_graphics
+https://github.com/rstudio/rstudio/issues/5421
+https://sebastiansauer.github.io/figure_sizing_knitr/
+https://www.statmethods.net/advgraphs/axes.html
+https://www.r-graph-gallery.com/210-custom-barplot-layout.html
+https://stackoverflow.com/questions/30265728/in-r-base-plot-move-axis-label-closer-to-axis
+https://stackoverflow.com/questions/15277712/adding-lines-to-barplot-in-a-different-y-axis-in-r
+https://stackoverflow.com/questions/10286473/rotating-x-axis-labels-in-r-for-barplot/21978596
+https://stackoverflow.com/questions/41850474/top-n-versus-order-in-r
+
+
